@@ -148,7 +148,9 @@ export class TurnosService {
   }
 
   byDateSnapshot(fecha: string): Turno[] {
-    return this._items$.value.filter(t => t.cabecera.fecha === fecha);
+    return this._items$.value
+      .filter(t => t.cabecera.fecha === fecha)
+      .sort((a, b) => a.cabecera.horaInicioAgendamiento.localeCompare(b.cabecera.horaInicioAgendamiento));
   }
 
   estado(t: Turno): TurnoEstado {
