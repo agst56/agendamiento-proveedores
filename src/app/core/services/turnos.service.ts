@@ -3,14 +3,32 @@ import { BehaviorSubject } from 'rxjs';
 import { Turno, TurnoCabecera, TurnoDetalle, TurnoEstado } from '../models/turno';
 import { IdService } from './id.service';
 import { JaulasService } from './jaulas.service';
+import { CookieStorageService } from './cookie-storage.service';
 import { nowHHmm } from '../utils/time';
 
 @Injectable({ providedIn: 'root' })
 export class TurnosService {
+  private readonly STORAGE_KEY = 'turnos';
   private readonly _items$ = new BehaviorSubject<Turno[]>([]);
   readonly items$ = this._items$.asObservable();
 
-  constructor(private ids: IdService, private jaulas: JaulasService) {}
+  constructor(private ids: IdService, private jaulas: JaulasService, private storage: CookieStorageService) {
+    this.loadFromStorage();
+    const currentItems = this._items$.value;
+    if (currentItems.length > 0) {
+      this.ids.seed(Math.max(...currentItems.map(i => i.cabecera.idTurno)));
+    }
+  }
+
+  private loadFromStorage(): void {
+    const items = this.storage.loadFromStorage<Turno>(this.STORAGE_KEY);
+    this._items$.next(items);
+  }
+
+  private saveToStorage(): void {
+    console.log("saving to storage")
+    this.storage.saveToStorage(this.STORAGE_KEY, this._items$.value);
+  }
 
   list() { 
     return this.items$; 
@@ -41,6 +59,7 @@ export class TurnosService {
     const dets: TurnoDetalle[] = detalles.map(d => ({ idTurno, ...d }));
     const nuevo: Turno = { cabecera, detalles: dets };
     this._items$.next([...this._items$.value, nuevo]);
+    this.saveToStorage();
     return idTurno;
   }
 
@@ -70,25 +89,44 @@ export class TurnosService {
     const idx = items.findIndex(t => t.cabecera.idTurno === idTurno);
     if (idx < 0) return;
     const t = items[idx];
-    if (t.cabecera.horaInicioRecepcion) return; // ya iniciado
+    console.log(JSON.stringify(t))
     
+    if (t.cabecera.horaInicioRecepcion){
+        console.warn(`No se puede iniciar recepción para turno ${idTurno}. Estado actual: ${this.estado(t)}`);
+        return;
+    }
+        console.log("asqea")
+
+
     // Validar que el turno esté en estado pendiente
     if (!this.puedeIniciarRecepcion(t)) {
       console.warn(`No se puede iniciar recepción para turno ${idTurno}. Estado actual: ${this.estado(t)}`);
       return;
     }
+        console.log("aasqsffff")
+
     
     // validar jaula libre
     const jaula = this.jaulas.getById(idJaula);
+        console.log("aagwerjnwerjk")
+    console.log(JSON.stringify(jaula))
     if (!jaula || jaula.enUso === 'S') return;
+    console.log("aaqwkjrnkjqg")
 
     const modCab = { ...t.cabecera, idJaula, horaInicioRecepcion: nowHHmm() };
+        console.log("aaqwrnqvvvv")
+
     const modTurno: Turno = { ...t, cabecera: modCab };
+    console.log("aaddddqwwwww")
 
     const next = [...items];
+    console.log("aa")
     next[idx] = modTurno;
+    console.log("aab")
     this._items$.next(next);
-
+    console.log("aabc")
+    this.saveToStorage();
+console.log("aadsq")
     this.jaulas.setEnUso(idJaula, 'S');
   }
 
@@ -112,6 +150,7 @@ export class TurnosService {
     const next = [...items];
     next[idx] = modTurno;
     this._items$.next(next);
+    this.saveToStorage();
 
     if (idJaula) this.jaulas.setEnUso(idJaula, 'N');
   }
@@ -148,5 +187,10 @@ export class TurnosService {
       enRecepcion: turnosFecha.filter(t => this.estado(t) === 'en recepcion').length,
       completados: turnosFecha.filter(t => this.estado(t) === 'completado').length
     };
+  }
+
+  clearAll(): void {
+    this._items$.next([]);
+    this.saveToStorage();
   }
 }

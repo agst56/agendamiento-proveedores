@@ -198,17 +198,15 @@ export class RecepcionActionsComponent implements OnInit {
 
   private iniciarRecepcion(jaulaId: number): void {
     try {
-      // Marcar la jaula como en uso
-      this.jaulasService.setEnUso(jaulaId, 'S');
-      
+            
       // Actualizar el turno localmente para mostrar cambio instantáneo
       this.turno.cabecera.idJaula = jaulaId;
       const now = this.getHoraActual();
-      this.turno.cabecera.horaInicioRecepcion = now;
       
       // Llamar al servicio para persistir los cambios
       this.turnosService.iniciarRecepcion(this.turno.cabecera.idTurno, jaulaId);
-      
+      this.turno.cabecera.horaInicioRecepcion = now;
+
       // Emitir evento al padre
       this.recepcionChanged.emit({
         type: 'iniciada',
@@ -243,10 +241,6 @@ export class RecepcionActionsComponent implements OnInit {
 
   private finalizarRecepcion(): void {
     try {
-      // Liberar la jaula
-      if (this.turno.cabecera.idJaula) {
-        this.jaulasService.setEnUso(this.turno.cabecera.idJaula, 'N');
-      }
       
       // Actualizar el turno localmente para mostrar cambio instantáneo
       const now = this.getHoraActual();
