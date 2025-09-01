@@ -30,21 +30,8 @@ npm install
 
 ## 🏗️ Build para Producción
 
-### Opción 1: Build Básico de Producción
 ```bash
 ng build --configuration=production
-```
-
-### Opción 2: Build Optimizado (Recomendado)
-```bash
-ng build --configuration=production --optimization=true --source-map=false --build-optimizer=true
-```
-
-### Opción 3: Build con Análisis de Bundle
-Para analizar el tamaño del bundle:
-```bash
-ng build --configuration=production --stats-json
-npx webpack-bundle-analyzer dist/agendamiento-proveedores/stats.json
 ```
 
 ## 🚀 Servir la Aplicación en Modo Producción
@@ -133,27 +120,6 @@ La aplicación incluye las siguientes optimizaciones en modo producción:
 - ✅ **Optimización de imágenes**
 - ✅ **Compresión gzip** (si el servidor lo soporta)
 
-## 🛠️ Scripts NPM Personalizados
-
-Puedes agregar estos scripts a tu `package.json`:
-
-```json
-{
-  "scripts": {
-    "build:prod": "ng build --configuration=production",
-    "build:prod-analyze": "ng build --configuration=production --stats-json && npx webpack-bundle-analyzer dist/agendamiento-proveedores/stats.json",
-    "serve:prod": "ng serve --configuration=production --host 0.0.0.0 --port 4200",
-    "serve:dist": "http-server dist/agendamiento-proveedores -p 8080 -a 0.0.0.0 -c-1 --cors",
-    "build:serve": "ng build --configuration=production && npm run serve:dist"
-  }
-}
-```
-
-Luego ejecutar:
-```bash
-npm run build:prod
-npm run serve:dist
-```
 
 ## 🌐 Configuración de Red Local
 
