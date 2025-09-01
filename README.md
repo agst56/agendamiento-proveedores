@@ -1,59 +1,248 @@
-# AgendamientoProveedores
+# Agendamiento Proveedores - Guía de Producción Local
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+Este documento proporciona instrucciones detalladas para buildear y ejecutar la aplicación en modo producción de forma local.
 
-## Development server
+## 📋 Requisitos Previos
 
-To start a local development server, run:
+- **Node.js**: versión 18.x o superior
+- **npm**: versión 9.x o superior
+- **Angular CLI**: versión 17.x o superior
 
+Verificar versiones instaladas:
 ```bash
-ng serve
+node --version
+npm --version
+ng version
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔧 Instalación de Dependencias
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+1. **Clonar el repositorio** (si no lo tienes):
 ```bash
-ng generate component component-name
+git clone <repository-url>
+cd agendamiento-proveedores
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+2. **Instalar dependencias**:
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
+## 🏗️ Build para Producción
 
-To build the project run:
-
+### Opción 1: Build Básico de Producción
 ```bash
-ng build
+ng build --configuration=production
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+### Opción 2: Build Optimizado (Recomendado)
 ```bash
-ng test
+ng build --configuration=production --optimization=true --source-map=false --build-optimizer=true
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
+### Opción 3: Build con Análisis de Bundle
+Para analizar el tamaño del bundle:
 ```bash
-ng e2e
+ng build --configuration=production --stats-json
+npx webpack-bundle-analyzer dist/agendamiento-proveedores/stats.json
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🚀 Servir la Aplicación en Modo Producción
 
-## Additional Resources
+### Opción 1: Usando Angular CLI (Desarrollo con optimizaciones)
+```bash
+ng serve --configuration=production --host 0.0.0.0 --port 4200
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Opción 2: Usando un Servidor Web Local
+
+#### Con http-server (Recomendado)
+1. **Instalar http-server globalmente**:
+```bash
+npm install -g http-server
+```
+
+2. **Servir la aplicación**:
+```bash
+# Después del build
+cd dist/agendamiento-proveedores
+http-server -p 8080 -a 0.0.0.0 -c-1 --cors
+```
+
+3. **Acceder a la aplicación**:
+```
+http://localhost:8080
+```
+
+#### Con serve
+1. **Instalar serve globalmente**:
+```bash
+npm install -g serve
+```
+
+2. **Servir la aplicación**:
+```bash
+# Después del build
+serve -s dist/agendamiento-proveedores -l 8080
+```
+
+### Opción 3: Usando Python (si tienes Python instalado)
+```bash
+# Python 3
+cd dist/agendamiento-proveedores
+python -m http.server 8080
+
+# Python 2
+cd dist/agendamiento-proveedores
+python -M SimpleHTTPServer 8080
+```
+
+## 📂 Estructura de Archivos de Producción
+
+Después del build, encontrarás los archivos en:
+```
+dist/agendamiento-proveedores/
+├── index.html
+├── main-[hash].js
+├── polyfills-[hash].js
+├── styles-[hash].css
+├── assets/
+└── ...otros archivos optimizados
+```
+
+## 🔍 Verificación de la Build
+
+### Verificar que el build fue exitoso:
+```bash
+ls -la dist/agendamiento-proveedores/
+```
+
+### Verificar el tamaño de los archivos:
+```bash
+du -sh dist/agendamiento-proveedores/*
+```
+
+## ⚡ Optimizaciones de Producción
+
+La aplicación incluye las siguientes optimizaciones en modo producción:
+
+- ✅ **Minificación** de JavaScript y CSS
+- ✅ **Tree-shaking** para eliminar código no utilizado
+- ✅ **AOT Compilation** (Ahead of Time)
+- ✅ **Lazy loading** de módulos
+- ✅ **Optimización de imágenes**
+- ✅ **Compresión gzip** (si el servidor lo soporta)
+
+## 🛠️ Scripts NPM Personalizados
+
+Puedes agregar estos scripts a tu `package.json`:
+
+```json
+{
+  "scripts": {
+    "build:prod": "ng build --configuration=production",
+    "build:prod-analyze": "ng build --configuration=production --stats-json && npx webpack-bundle-analyzer dist/agendamiento-proveedores/stats.json",
+    "serve:prod": "ng serve --configuration=production --host 0.0.0.0 --port 4200",
+    "serve:dist": "http-server dist/agendamiento-proveedores -p 8080 -a 0.0.0.0 -c-1 --cors",
+    "build:serve": "ng build --configuration=production && npm run serve:dist"
+  }
+}
+```
+
+Luego ejecutar:
+```bash
+npm run build:prod
+npm run serve:dist
+```
+
+## 🌐 Configuración de Red Local
+
+Para acceder desde otros dispositivos en la red local:
+
+1. **Obtener tu IP local**:
+```bash
+# En macOS/Linux
+ifconfig | grep inet
+# En Windows
+ipconfig
+```
+
+2. **Servir con la IP específica**:
+```bash
+ng serve --configuration=production --host 0.0.0.0 --port 4200
+# O con http-server
+http-server dist/agendamiento-proveedores -p 8080 -a 0.0.0.0
+```
+
+3. **Acceder desde otros dispositivos**:
+```
+http://[tu-ip-local]:4200
+# Ejemplo: http://192.168.1.100:4200
+```
+
+## 🗂️ Persistencia de Datos
+
+La aplicación utiliza **cookies del navegador** para persistir datos:
+
+- ✅ **Proveedores**: Almacenados en cookie `proveedores`
+- ✅ **Productos**: Almacenados en cookie `productos`
+- ✅ **Jaulas**: Almacenados en cookie `jaulas`
+- ✅ **Turnos**: Almacenados en cookie `turnos`
+
+**Nota**: Los datos persisten entre sesiones y reinicios del navegador.
+
+## 🔧 Troubleshooting
+
+### Problema: Error de memoria durante el build
+```bash
+# Aumentar memoria de Node.js
+node --max_old_space_size=4096 ./node_modules/@angular/cli/bin/ng build --configuration=production
+```
+
+### Problema: Puerto en uso
+```bash
+# Usar un puerto diferente
+ng serve --configuration=production --port 4201
+```
+
+### Problema: Permisos en macOS/Linux
+```bash
+sudo ng serve --configuration=production --host 0.0.0.0 --port 80
+```
+
+## 📊 Monitoreo de Performance
+
+Para monitorear el rendimiento en producción:
+
+1. **Abrir DevTools** en el navegador
+2. **Ir a la pestaña Lighthouse**
+3. **Ejecutar auditoría** para PWA/Performance
+4. **Revisar métricas** como:
+   - First Contentful Paint (FCP)
+   - Largest Contentful Paint (LCP)
+   - Cumulative Layout Shift (CLS)
+
+## 🔒 Consideraciones de Seguridad
+
+Para un entorno de producción real, considera:
+
+- 🔐 Implementar HTTPS
+- 🛡️ Configurar Content Security Policy (CSP)
+- 🚫 Configurar headers de seguridad
+- 🔍 Implementar logging y monitoreo
+- 💾 Migrar de cookies a una base de datos real
+
+## 📞 Soporte
+
+Si encuentras problemas durante el build o deployment:
+
+1. Verificar que todas las dependencias estén instaladas
+2. Limpiar node_modules y reinstalar: `rm -rf node_modules && npm install`
+3. Limpiar cache de Angular: `ng cache clean`
+4. Verificar compatibilidad de versiones de Node.js y Angular
+
+---
+
+**Última actualización**: Septiembre 2025  
+**Versión Angular**: 17.x  
+**Modo de persistencia**: Cookies del navegador
