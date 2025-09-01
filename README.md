@@ -52,7 +52,7 @@ npm install -g http-server
 2. **Servir la aplicación**:
 ```bash
 # Después del build
-cd dist/agendamiento-proveedores
+cd dist/agendamiento-proveedores/browser
 http-server -p 8080 -a 0.0.0.0 -c-1 --cors
 ```
 
@@ -70,17 +70,17 @@ npm install -g serve
 2. **Servir la aplicación**:
 ```bash
 # Después del build
-serve -s dist/agendamiento-proveedores -l 8080
+serve -s dist/agendamiento-proveedores/browser -l 8080
 ```
 
 ### Opción 3: Usando Python (si tienes Python instalado)
 ```bash
 # Python 3
-cd dist/agendamiento-proveedores
+cd dist/agendamiento-proveedores/browser
 python -m http.server 8080
 
 # Python 2
-cd dist/agendamiento-proveedores
+cd dist/agendamiento-proveedores/browser
 python -M SimpleHTTPServer 8080
 ```
 
