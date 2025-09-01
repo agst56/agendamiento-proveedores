@@ -84,31 +84,6 @@ cd dist/agendamiento-proveedores
 python -M SimpleHTTPServer 8080
 ```
 
-## 📂 Estructura de Archivos de Producción
-
-Después del build, encontrarás los archivos en:
-```
-dist/agendamiento-proveedores/
-├── index.html
-├── main-[hash].js
-├── polyfills-[hash].js
-├── styles-[hash].css
-├── assets/
-└── ...otros archivos optimizados
-```
-
-## 🔍 Verificación de la Build
-
-### Verificar que el build fue exitoso:
-```bash
-ls -la dist/agendamiento-proveedores/
-```
-
-### Verificar el tamaño de los archivos:
-```bash
-du -sh dist/agendamiento-proveedores/*
-```
-
 ## ⚡ Optimizaciones de Producción
 
 La aplicación incluye las siguientes optimizaciones en modo producción:
