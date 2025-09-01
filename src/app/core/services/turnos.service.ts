@@ -60,9 +60,9 @@ export class TurnosService {
 
   estado(t: Turno): TurnoEstado {
     const c = t.cabecera;
-    if (c.horaFinRecepcion) return 'FINALIZADO';
-    if (c.horaInicioRecepcion) return 'EN_RECEPCION';
-    return 'PENDIENTE';
+    if (c.horaFinRecepcion) return 'completado';
+    if (c.horaInicioRecepcion) return 'en recepcion';
+    return 'pendiente';
   }
 
   iniciarRecepcion(idTurno: number, idJaula: number): void {
@@ -71,6 +71,12 @@ export class TurnosService {
     if (idx < 0) return;
     const t = items[idx];
     if (t.cabecera.horaInicioRecepcion) return; // ya iniciado
+    
+    // Validar que el turno esté en estado pendiente
+    if (!this.puedeIniciarRecepcion(t)) {
+      console.warn(`No se puede iniciar recepción para turno ${idTurno}. Estado actual: ${this.estado(t)}`);
+      return;
+    }
     
     // validar jaula libre
     const jaula = this.jaulas.getById(idJaula);
@@ -93,6 +99,12 @@ export class TurnosService {
     const t = items[idx];
     if (!t.cabecera.horaInicioRecepcion || t.cabecera.horaFinRecepcion) return;
 
+    // Validar que el turno esté en estado 'en recepcion'
+    if (!this.puedeFinalizarRecepcion(t)) {
+      console.warn(`No se puede finalizar recepción para turno ${idTurno}. Estado actual: ${this.estado(t)}`);
+      return;
+    }
+
     const idJaula = t.cabecera.idJaula ?? undefined;
     const modCab = { ...t.cabecera, horaFinRecepcion: nowHHmm() };
     const modTurno: Turno = { ...t, cabecera: modCab };
@@ -102,5 +114,39 @@ export class TurnosService {
     this._items$.next(next);
 
     if (idJaula) this.jaulas.setEnUso(idJaula, 'N');
+  }
+
+  /**
+   * Métodos utilitarios para validar estados y acciones
+   */
+  puedeIniciarRecepcion(turno: Turno): boolean {
+    return this.estado(turno) === 'pendiente';
+  }
+
+  puedeFinalizarRecepcion(turno: Turno): boolean {
+    return this.estado(turno) === 'en recepcion';
+  }
+
+  estaCompletado(turno: Turno): boolean {
+    return this.estado(turno) === 'completado';
+  }
+
+  /**
+   * Obtiene todos los turnos por estado
+   */
+  turnosPorEstado(estado: TurnoEstado): Turno[] {
+    return this._items$.value.filter(t => this.estado(t) === estado);
+  }
+
+  /**
+   * Obtiene estadísticas de turnos para una fecha específica
+   */
+  estadisticasPorFecha(fecha: string): { pendientes: number; enRecepcion: number; completados: number } {
+    const turnosFecha = this.byDateSnapshot(fecha);
+    return {
+      pendientes: turnosFecha.filter(t => this.estado(t) === 'pendiente').length,
+      enRecepcion: turnosFecha.filter(t => this.estado(t) === 'en recepcion').length,
+      completados: turnosFecha.filter(t => this.estado(t) === 'completado').length
+    };
   }
 }

@@ -10,6 +10,7 @@ import { ProductosService } from '../../../../core/services/productos.service';
 import { TurnosService } from '../../../../core/services/turnos.service';
 import { Proveedor } from '../../../../core/models/proveedor';
 import { Producto } from '../../../../core/models/producto';
+import { Turno, TurnoEstado } from '../../../../core/models/turno';
 
 @Component({
   selector: 'app-reserva-turno',
@@ -74,5 +75,30 @@ export class ReservaTurnoComponent {
     
     this.turnos.createReserva(v.fecha, v.horaInicioAgendamiento, v.horaFinAgendamiento, Number(v.idProveedor), dets);
     this.router.navigate(['/recepcion']);
+  }
+
+  /**
+   * Obtiene el estado de un turno basado en los campos de recepción
+   * • pendiente: campo inicio recepcion no tiene valor  
+   * • en recepcion: campo inicio recepcion tiene valor y campo fin recepcion no tiene valor
+   * • completado: campo fin recepcion tiene valor
+   */
+  getEstadoTurno(turno: Turno): TurnoEstado {
+    return this.turnos.estado(turno);
+  }
+
+  /**
+   * Verifica si se pueden realizar acciones específicas según el estado
+   */
+  puedeIniciarRecepcion(turno: Turno): boolean {
+    return this.getEstadoTurno(turno) === 'pendiente';
+  }
+
+  puedeFinalizarRecepcion(turno: Turno): boolean {
+    return this.getEstadoTurno(turno) === 'en recepcion';
+  }
+
+  estaCompletado(turno: Turno): boolean {
+    return this.getEstadoTurno(turno) === 'completado';
   }
 }

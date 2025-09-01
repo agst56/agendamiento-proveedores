@@ -23,18 +23,12 @@
       <td>{{ estado(t) }}</td>
       <td>
         <button (click)="toggle(t.cabecera.idTurno)">Detalles</button>
-        <ng-container [ngSwitch]="estado(t)">
-          <div *ngSwitchCase="'PENDIENTE'" class="inline">
-            <select [(ngModel)]="jaulaSeleccionada[t.cabecera.idTurno]">
-              <option *ngFor="let j of (jaulas$ | async)" [value]="j.idJaula" [disabled]="j.enUso === 'S'">
-                {{ j.nombre }} ({{ j.enUso==='S'?'Ocupada':'Libre' }})
-              </option>
-            </select>
-            <button (click)="iniciar(t)">Iniciar recepción</button>
-          </div>
-          <button *ngSwitchCase="'EN_RECEPCION'" (click)="finalizar(t)">Finalizar</button>
-          <span *ngSwitchCase="'FINALIZADO'">—</span>
-        </ng-container>
+        <app-recepcion-actions 
+          [turno]="t"
+          [jaulasDisponibles]="getJaulasLibres()"
+          [todasLasJaulas]="getTodasLasJaulas()"
+          (turnoActualizado)="refrescar()">
+        </app-recepcion-actions>
       </td>
     </tr>
     <tr *ngFor="let t of turnos">

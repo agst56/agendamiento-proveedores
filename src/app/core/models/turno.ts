@@ -23,4 +23,4 @@ detalles: TurnoDetalle[];
 }
 
 
-export type TurnoEstado = 'PENDIENTE' | 'EN_RECEPCION' | 'FINALIZADO';
+export type TurnoEstado = 'pendiente' | 'en recepcion' | 'completado';

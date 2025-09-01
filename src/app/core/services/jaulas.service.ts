@@ -53,4 +53,6 @@ this._items$.next(this._items$.value.map(j => j.idJaula === idJaula ? { ...j, en
 
 
 libresSnapshot(): Jaula[] { return this._items$.value.filter(j => j.enUso === 'N'); }
+
+allSnapshot(): Jaula[] { return this._items$.value; }
 }

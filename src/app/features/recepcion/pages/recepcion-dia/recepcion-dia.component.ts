@@ -10,11 +10,12 @@ import { Turno } from '../../../../core/models/turno';
 import { Proveedor } from '../../../../core/models/proveedor';
 import { Producto } from '../../../../core/models/producto';
 import { Jaula } from '../../../../core/models/jaula';
+import { RecepcionActionsComponent } from '../../../../shared/components/recepcion-actions/recepcion-actions.component';
 
 @Component({
   selector: 'app-recepcion-dia',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RecepcionActionsComponent],
   templateUrl: './recepcion-dia.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -32,7 +33,7 @@ export class RecepcionDiaComponent {
     private turnosSrv: TurnosService, 
     private proveedores: ProveedoresService, 
     private productos: ProductosService, 
-    private jaulas: JaulasService
+    public jaulas: JaulasService
   ) {
     this.proveedores$ = this.proveedores.list();
     this.productos$ = this.productos.list();
@@ -56,6 +57,15 @@ export class RecepcionDiaComponent {
 
   toggle(idTurno: number) { 
     this.expanded[idTurno] = !this.expanded[idTurno]; 
+  }
+
+  // Métodos para compatibilidad con el componente RecepcionActions
+  getJaulasLibres(): Jaula[] {
+    return this.jaulas.libresSnapshot();
+  }
+
+  getTodasLasJaulas(): Jaula[] {
+    return this.jaulas.allSnapshot();
   }
 
   iniciar(t: Turno) {
