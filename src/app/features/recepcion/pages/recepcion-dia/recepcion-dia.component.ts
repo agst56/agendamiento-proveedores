@@ -10,7 +10,7 @@ import { Turno } from '../../../../core/models/turno';
 import { Proveedor } from '../../../../core/models/proveedor';
 import { Producto } from '../../../../core/models/producto';
 import { Jaula } from '../../../../core/models/jaula';
-import { RecepcionActionsComponent } from '../../../../shared/components/recepcion-actions/recepcion-actions.component';
+import { RecepcionActionsComponent, RecepcionChangeEvent } from '../../../../shared/components/recepcion-actions/recepcion-actions.component';
 
 @Component({
   selector: 'app-recepcion-dia',
@@ -87,5 +87,54 @@ export class RecepcionDiaComponent {
 
   estado(t: Turno) { 
     return this.turnosSrv.estado(t); 
+  }
+
+  // Manejar cambios en el estado de recepción
+  onRecepcionChanged(event: RecepcionChangeEvent): void {
+    if (event.success) {
+      // Actualizar la fila específica en la tabla
+      const index = this.turnos.findIndex(t => t.cabecera.idTurno === event.turno.cabecera.idTurno);
+      if (index >= 0) {
+        this.turnos[index] = { ...event.turno };
+      }
+      
+      console.log(`Recepción ${event.type} exitosamente para turno ${event.turno.cabecera.idTurno}`);
+      
+      // Realizar acciones adicionales según el tipo
+      switch (event.type) {
+        case 'iniciada':
+          console.log(`Turno asignado a jaula ${event.jaulaId}`);
+          break;
+        case 'finalizada':
+          console.log(`Turno completado a las ${event.timestamp}`);
+          break;
+      }
+    } else {
+      console.error(`Error en recepción ${event.type} para turno ${event.turno.cabecera.idTurno}`);
+      // Refrescar la lista en caso de error para asegurar consistencia
+      this.refrescar();
+    }
+  }
+  
+  // Extraer solo la parte de la hora de una fecha ISO
+  formatHoraDesdeISO(isoString: string | null | undefined): string {
+    if (!isoString) return '-';
+    
+    // Si ya está en formato HH:mm, devolverlo directamente
+    if (/^\d{1,2}:\d{1,2}$/.test(isoString)) {
+      return isoString;
+    }
+    
+    try {
+      // Si es una fecha ISO completa, extraer solo la hora
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString; // Si no es válida, mostrar el string original
+      
+      const horas = date.getHours().toString().padStart(2, '0');
+      const minutos = date.getMinutes().toString().padStart(2, '0');
+      return `${horas}:${minutos}`;
+    } catch(e) {
+      return isoString; // En caso de error, mostrar el string original
+    }
   }
 }

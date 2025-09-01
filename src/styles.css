@@ -1,16 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Header improvements */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding: 0;
 }
 
 .header h2 {
   margin: 0;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--mat-theme-on-surface);
 }
 
+/* Legacy styles for backward compatibility */
 .header a {
   background: #007bff;
   color: white;
@@ -213,4 +219,78 @@ form input:focus, form select:focus {
 
 .inline button:hover {
   background: #0056b3;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Angular Material Custom Styles */
+
+/* Header improvements with Material Design */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 0;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--mat-app-primary);
+}
+
+/* Material Table styles */
+.mat-elevation-z2 {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 
+              0px 3px 4px rgba(0, 0, 0, 0.12), 
+              0px 1px 5px rgba(0, 0, 0, 0.20);
+}
+
+table.mat-mdc-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mat-mdc-header-cell {
+  font-weight: 600;
+  color: var(--mat-app-on-surface);
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell {
+  padding: 16px;
+}
+
+/* Card spacing */
+mat-card {
+  margin: 16px 0;
+}
+
+mat-card-content {
+  padding: 16px !important;
+}
+
+/* Form field improvements */
+.full-width {
+  width: 100%;
+}
+
+/* Button spacing in card actions */
+mat-card-actions {
+  padding: 8px 16px 16px 16px !important;
+}
+
+mat-card-actions button + button {
+  margin-left: 8px;
+}
+
+/* Icon button spacing in tables */
+.mat-mdc-icon-button + .mat-mdc-icon-button {
+  margin-left: 4px;
+}
+
+/* Search field container */
+.search-container {
+  margin-bottom: 16px;
 }

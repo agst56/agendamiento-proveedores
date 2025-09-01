@@ -1,4 +1,77 @@
+/* Layout principal */
+.app-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
+.toolbar-icon {
+  margin-right: 16px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* Sidenav */
+.sidenav-container {
+  height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.sidenav {
+  width: 240px;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.sidenav mat-nav-list {
+  padding-top: 0;
+}
+
+.sidenav mat-list-item {
+  height: 48px;
+}
+
+.sidenav mat-list-item.active {
+  background-color: rgba(var(--mat-theme-primary-rgb), 0.08);
+  color: var(--mat-theme-primary);
+}
+
+.sidenav mat-list-item.active mat-icon {
+  color: var(--mat-theme-primary);
+}
+
+.sidenav mat-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Contenido principal */
 .main-content {
-  padding-top: 70px; /* Espacio para el header fijo */
-  min-height: calc(100vh - 70px);
+  height: 100%;
+  overflow: auto;
+}
+
+.content-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sidenav {
+    width: 100%;
+  }
+  
+  .content-container {
+    padding: 16px;
+  }
 }

@@ -1,0 +1,53 @@
+.proveedor-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+mat-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-header {
+  margin-bottom: 16px;
+}
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+mat-card-actions {
+  padding: 16px 24px !important;
+}
+
+mat-card-actions button + button {
+  margin-left: 12px;
+}
+
+mat-card {
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+mat-card-header {
+  margin-bottom: 16px;
+}
+
+mat-card-actions {
+  padding: 16px;
+  gap: 8px;
+}
+
+mat-card-actions button {
+  margin-left: 8px;
+}
+
+mat-card-actions button:first-child {
+  margin-left: 0;
+}

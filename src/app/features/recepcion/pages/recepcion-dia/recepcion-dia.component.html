@@ -12,7 +12,9 @@
       <th>Proveedor</th>
       <th>Jaula</th>
       <th>Estado</th>
-      <th style="width:260px">Acciones</th>
+      <th>Inicio recepción</th>
+      <th>Fin recepción</th>
+      <th style="width:200px">Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -21,31 +23,15 @@
       <td>{{ nombreProveedor(t.cabecera.idProveedor) }}</td>
       <td>{{ t.cabecera.idJaula || '-' }}</td>
       <td>{{ estado(t) }}</td>
+      <td>{{ formatHoraDesdeISO(t.cabecera.horaInicioRecepcion) }}</td>
+      <td>{{ formatHoraDesdeISO(t.cabecera.horaFinRecepcion) }}</td>
       <td>
-        <button (click)="toggle(t.cabecera.idTurno)">Detalles</button>
         <app-recepcion-actions 
-          [turno]="t"
-          [jaulasDisponibles]="getJaulasLibres()"
-          [todasLasJaulas]="getTodasLasJaulas()"
-          (turnoActualizado)="refrescar()">
+          [turno]="t" 
+          (recepcionChanged)="onRecepcionChanged($event)">
         </app-recepcion-actions>
       </td>
     </tr>
-    <tr *ngFor="let t of turnos">
-      <td colspan="5" *ngIf="expanded[t.cabecera.idTurno]">
-        <strong>Productos:</strong>
-        <ul>
-          <li *ngFor="let d of t.detalles">
-            {{ nombreProducto(d.idProducto) }}: {{ d.cantidad }}
-          </li>
-        </ul>
-        <div *ngIf="t.cabecera.horaInicioRecepcion">
-          Inicio recepción: {{ t.cabecera.horaInicioRecepcion }}
-        </div>
-        <div *ngIf="t.cabecera.horaFinRecepcion">
-          Fin recepción: {{ t.cabecera.horaFinRecepcion }}
-        </div>
-      </td>
-    </tr>
+    
   </tbody>
 </table>

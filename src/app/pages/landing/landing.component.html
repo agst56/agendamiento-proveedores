@@ -1,39 +1,90 @@
 <div class="landing-container">
-  <header class="landing-header">
-    <h1>🚛 Sistema de Agendamiento de Proveedores</h1>
-    <p>Gestiona eficientemente las recepciones de tu empresa</p>
-  </header>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <mat-card class="hero-card">
+      <mat-card-content class="hero-content">
+        <div class="hero-icon">
+          <mat-icon class="large-icon">inventory_2</mat-icon>
+        </div>
+        <h1 class="hero-title">Sistema de Agendamiento</h1>
+        <p class="hero-subtitle">Gestiona eficientemente las recepciones y proveedores de tu empresa</p>
+        <div class="hero-actions">
+          <button mat-raised-button color="primary" size="large" routerLink="/turnos">
+            <mat-icon>schedule</mat-icon>
+            Agendar Turno
+          </button>
+          <button mat-stroked-button color="primary" routerLink="/recepcion">
+            <mat-icon>receipt_long</mat-icon>
+            Ver Recepciones
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
 
-  <main class="modules-grid">
-    <div 
-      *ngFor="let module of modules" 
-      class="module-card"
-      [routerLink]="module.route"
-      [style.border-left-color]="module.color">
-      
-      <div class="module-icon">{{ module.icon }}</div>
-      <div class="module-content">
-        <h3>{{ module.title }}</h3>
-        <p>{{ module.description }}</p>
-      </div>
-      <div class="module-arrow">→</div>
+  <!-- Modules Grid -->
+  <section class="modules-section">
+    <h2 class="section-title">Módulos del Sistema</h2>
+    <div class="modules-grid">
+      <mat-card 
+        *ngFor="let module of modules" 
+        class="module-card"
+        [routerLink]="module.route"
+        [style.--accent-color]="module.color">
+        
+        <mat-card-header>
+          <div mat-card-avatar class="module-avatar">
+            <mat-icon [style.color]="module.color">{{ module.icon }}</mat-icon>
+          </div>
+          <mat-card-title>{{ module.title }}</mat-card-title>
+          <mat-card-subtitle>{{ module.description }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-actions align="end">
+          <button mat-icon-button color="primary">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </div>
-  </main>
+  </section>
 
-  <footer class="landing-footer">
-    <div class="stats">
-      <div class="stat-item">
-        <span class="stat-number">5</span>
-        <span class="stat-label">Módulos</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">100%</span>
-        <span class="stat-label">Funcional</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">24/7</span>
-        <span class="stat-label">Disponible</span>
-      </div>
-    </div>
-  </footer>
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <h3 class="stats-title">Estado del Sistema</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <mat-icon class="stat-icon">business</mat-icon>
+            <div class="stat-content">
+              <span class="stat-number">{{ stats.proveedores }}</span>
+              <span class="stat-label">Proveedores</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon class="stat-icon">inventory</mat-icon>
+            <div class="stat-content">
+              <span class="stat-number">{{ stats.productos }}</span>
+              <span class="stat-label">Productos</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon class="stat-icon">view_module</mat-icon>
+            <div class="stat-content">
+              <span class="stat-number">{{ stats.jaulas }}</span>
+              <span class="stat-label">Jaulas</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon class="stat-icon">schedule</mat-icon>
+            <div class="stat-content">
+              <span class="stat-number">{{ stats.turnos }}</span>
+              <span class="stat-label">Turnos Hoy</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
 </div>

@@ -1,4 +1,68 @@
-<app-header></app-header>
-<main class="main-content">
-  <router-outlet></router-outlet>
-</main>
+<mat-toolbar color="primary" class="app-toolbar">
+  <mat-icon class="toolbar-icon">inventory_2</mat-icon>
+  <span class="app-title">Sistema de Agendamiento</span>
+  <span class="toolbar-spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item routerLink="/proveedores">
+      <mat-icon>business</mat-icon>
+      <span>Proveedores</span>
+    </button>
+    <button mat-menu-item routerLink="/productos">
+      <mat-icon>inventory</mat-icon>
+      <span>Productos</span>
+    </button>
+    <button mat-menu-item routerLink="/jaulas">
+      <mat-icon>view_module</mat-icon>
+      <span>Jaulas</span>
+    </button>
+    <button mat-menu-item routerLink="/turnos">
+      <mat-icon>schedule</mat-icon>
+      <span>Turnos</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav mode="side" opened class="sidenav">
+    <mat-nav-list>
+      <mat-list-item routerLink="/" routerLinkActive="active">
+        <mat-icon matListItemIcon>home</mat-icon>
+        <span matListItemTitle>Inicio</span>
+      </mat-list-item>
+      
+      <mat-list-item routerLink="/proveedores" routerLinkActive="active">
+        <mat-icon matListItemIcon>business</mat-icon>
+        <span matListItemTitle>Proveedores</span>
+      </mat-list-item>
+      
+      <mat-list-item routerLink="/productos" routerLinkActive="active">
+        <mat-icon matListItemIcon>inventory</mat-icon>
+        <span matListItemTitle>Productos</span>
+      </mat-list-item>
+      
+      <mat-list-item routerLink="/jaulas" routerLinkActive="active">
+        <mat-icon matListItemIcon>view_module</mat-icon>
+        <span matListItemTitle>Jaulas</span>
+      </mat-list-item>
+      
+      <mat-list-item routerLink="/turnos" routerLinkActive="active">
+        <mat-icon matListItemIcon>schedule</mat-icon>
+        <span matListItemTitle>Turnos</span>
+      </mat-list-item>
+      
+      <mat-list-item routerLink="/recepcion" routerLinkActive="active">
+        <mat-icon matListItemIcon>receipt_long</mat-icon>
+        <span matListItemTitle>Recepción</span>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+  
+  <mat-sidenav-content class="main-content">
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

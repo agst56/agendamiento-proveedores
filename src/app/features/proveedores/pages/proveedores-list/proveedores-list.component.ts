@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Observable, combineLatest, startWith, map } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, map } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -16,18 +16,29 @@ import { ProveedoresService } from '../../../../core/services/proveedores.servic
 export class ProveedoresListComponent {
   term = '';
   readonly proveedores$: Observable<Proveedor[]>;
+  readonly filteredProveedores: Observable<Proveedor[]>;
+  displayedColumns: string[] = ['id', 'nombre', 'actions'];
+  
+  private termSubject = new BehaviorSubject<string>('');
 
   constructor(private srv: ProveedoresService) {
-    const term$ = new Observable<string>(obs => {
-      obs.next('');
-    }).pipe(startWith(''));
-
-    // Simpler: filtrar sobre el estado actual cada vez que cambia term (via (valueChange))
     this.proveedores$ = this.srv.list();
+    
+    this.filteredProveedores = combineLatest([
+      this.proveedores$,
+      this.termSubject.asObservable()
+    ]).pipe(
+      map(([proveedores, term]) => 
+        proveedores.filter(p => 
+          !term || p.nombre.toLowerCase().includes(term.toLowerCase())
+        )
+      )
+    );
   }
 
   onSearch(value: string) { 
-    this.term = value; 
+    this.term = value;
+    this.termSubject.next(value);
   }
 
   trackById = (_: number, it: Proveedor) => it.idProveedor;

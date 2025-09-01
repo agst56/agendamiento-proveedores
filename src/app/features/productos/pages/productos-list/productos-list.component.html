@@ -1,6 +1,9 @@
 <div class="header">
   <h2>Productos</h2>
-  <a routerLink="/productos/nuevo">+ Nuevo</a>
+  <button mat-raised-button color="primary" routerLink="/productos/nuevo">
+    <mat-icon>add</mat-icon>
+    Nuevo Producto
+  </button>
 </div>
 
 <app-search-input 
@@ -9,23 +12,39 @@
   (valueChange)="onSearch($event)">
 </app-search-input>
 
-<table class="tbl">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th style="width:120px"></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let p of (items$ | async) | slice:0; trackBy: trackById"
-        [hidden]="term && !p.nombre.toLowerCase().includes(term.toLowerCase())">
-      <td>{{ p.idProducto }}</td>
-      <td>{{ p.nombre }}</td>
-      <td>
-        <a [routerLink]="['/productos', p.idProducto]">Editar</a>
-        <button (click)="remove(p.idProducto)">Eliminar</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<mat-card>
+  <mat-card-content>
+    <div class="mat-elevation-z2">
+      <table mat-table [dataSource]="filteredProductos" class="mat-elevation-z2">
+        
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let producto">{{producto.idProducto}}</td>
+        </ng-container>
+
+        <!-- Nombre Column -->
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let producto">{{producto.nombre}}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let producto">
+            <button mat-icon-button color="primary" [routerLink]="['/productos', producto.idProducto]">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="remove(producto.idProducto)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>

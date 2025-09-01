@@ -1,15 +1,18 @@
-.search {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+.search-field {
   width: 100%;
   max-width: 300px;
   margin-bottom: 16px;
 }
 
-.search:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+.search-field .mat-mdc-form-field-flex {
+  align-items: center;
+}
+
+.search-field .mat-mdc-text-field-wrapper {
+  padding: 0;
+}
+
+// Customize Material Design appearance if needed
+.search-field .mat-mdc-form-field-outline-thick {
+  color: var(--mat-form-field-focus-outline-color);
 }

@@ -1,154 +1,142 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Turno, TurnoEstado } from '../../../core/models/turno';
 import { Jaula } from '../../../core/models/jaula';
 import { TurnosService } from '../../../core/services/turnos.service';
+import { JaulasService } from '../../../core/services/jaulas.service';
+import { nowHHmm } from '../../../core/utils/time';
+import { IniciarRecepcionDialog } from './dialogs/iniciar-recepcion-dialog.component';
+import { FinalizarRecepcionDialog } from './dialogs/finalizar-recepcion-dialog.component';
+import { DetallesRecepcionDialog } from './dialogs/detalles-recepcion-dialog.component';
+
+export interface RecepcionChangeEvent {
+  type: 'iniciada' | 'finalizada';
+  turno: Turno;
+  success: boolean;
+  jaulaId?: number;
+  timestamp: string;
+}
 
 @Component({
   selector: 'app-recepcion-actions',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    
+    MatDialogModule,
+    MatSnackBarModule,
+    MatTooltipModule
+  ],
   template: `
-    <div class="recepcion-actions">
-      <ng-container [ngSwitch]="getEstado()">
-        <!-- Estado: pendiente -->
-        <div *ngSwitchCase="'pendiente'" class="estado-pendiente">
-          <span class="estado-badge pendiente">PENDIENTE</span>
-          <div class="actions">
-            <select [(ngModel)]="jaulaSeleccionada" [disabled]="!jaulasDisponibles.length">
-              <option value="">Seleccionar jaula</option>
-              <option *ngFor="let jaula of jaulasDisponibles" [value]="jaula.idJaula">
-                {{ jaula.nombre }}
-              </option>
-            </select>
-            <button 
-              type="button" 
-              class="btn-iniciar"
-              [disabled]="!jaulaSeleccionada || !jaulasDisponibles.length"
-              (click)="iniciarRecepcion()">
-              Iniciar Recepción
-            </button>
-          </div>
-        </div>
+    <div class="actions-inline" [ngSwitch]="getEstado()">
+      <!-- Detalles siempre visible sin fondo -->
+      <button
+        mat-icon-button
+        class="transparent-button"
+        (click)="verDetalles()"
+        matTooltip="Ver detalles del turno">
+        <mat-icon>visibility</mat-icon>
+      </button>
 
-        <!-- Estado: en recepcion -->
-        <div *ngSwitchCase="'en recepcion'" class="estado-en-recepcion">
-          <span class="estado-badge en-recepcion">EN RECEPCIÓN</span>
-          <div class="actions">
-            <span class="info">Jaula: {{ getNombreJaula() }}</span>
-            <span class="info">Iniciado: {{ turno.cabecera.horaInicioRecepcion }}</span>
-            <button 
-              type="button" 
-              class="btn-finalizar"
-              (click)="finalizarRecepcion()">
-              Finalizar Recepción
-            </button>
-          </div>
-        </div>
+      <!-- Iniciar cuando está pendiente - solo borde -->
+      <button
+        *ngSwitchCase="'pendiente'"
+        mat-stroked-button
+        color="primary"
+        class="bordered-button"
+        (click)="abrirDialogoIniciar()"
+        matTooltip="Iniciar recepción">
+        <mat-icon>play_arrow</mat-icon>
+        <span class="label">Iniciar</span>
+      </button>
 
-        <!-- Estado: completado -->
-        <div *ngSwitchCase="'completado'" class="estado-completado">
-          <span class="estado-badge completado">COMPLETADO</span>
-          <div class="info-completado">
-            <span class="info">Jaula usada: {{ getNombreJaula() }}</span>
-            <span class="info">Inicio: {{ turno.cabecera.horaInicioRecepcion }}</span>
-            <span class="info">Fin: {{ turno.cabecera.horaFinRecepcion }}</span>
-          </div>
-        </div>
-      </ng-container>
+      <!-- Finalizar cuando está en recepción - solo borde -->
+      <button
+        *ngSwitchCase="'en recepcion'"
+        mat-stroked-button
+        color="primary"
+        class="bordered-button"
+        (click)="abrirDialogoFinalizar()"
+        matTooltip="Finalizar recepción">
+        <mat-icon>stop</mat-icon>
+        <span class="label">Finalizar</span>
+      </button>
     </div>
   `,
   styles: [`
-    .recepcion-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px;
-    }
-
-    .estado-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      color: white;
-    }
-
-    .estado-badge.pendiente {
-      background-color: #ffc107;
-      color: #000;
-    }
-
-    .estado-badge.en-recepcion {
-      background-color: #17a2b8;
-    }
-
-    .estado-badge.completado {
-      background-color: #28a745;
-    }
-
-    .actions {
-      display: flex;
+    .actions-inline {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
 
-    .info {
-      font-size: 12px;
-      color: #666;
+    .actions-inline .label {
+      margin-left: 4px;
+      background: transparent;
     }
 
-    .info-completado {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    /* Botón del ojo sin fondo */
+    .transparent-button {
+      background: transparent !important;
+      box-shadow: none !important;
+      color: black;
     }
 
-    select {
-      padding: 4px 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+    .bordered-button{
+        background: transparent !important;
+        border: 1px solid black;
     }
 
-    button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-    }
 
-    .btn-iniciar {
-      background-color: #007bff;
-      color: white;
-    }
 
-    .btn-iniciar:disabled {
-      background-color: #6c757d;
-      cursor: not-allowed;
-    }
-
-    .btn-finalizar {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    button:hover:not(:disabled) {
-      opacity: 0.8;
-    }
+    :host { display: inline-block; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RecepcionActionsComponent {
+export class RecepcionActionsComponent implements OnInit {
   @Input() turno!: Turno;
-  @Input() jaulasDisponibles: Jaula[] = [];
-  @Input() todasLasJaulas: Jaula[] = [];
-  @Output() turnoActualizado = new EventEmitter<void>();
+  @Output() recepcionChanged = new EventEmitter<RecepcionChangeEvent>();
+  
+  jaulasDisponibles: Jaula[] = [];
+  todasLasJaulas: Jaula[] = [];
 
   jaulaSeleccionada = '';
+  
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
-  constructor(private turnosService: TurnosService) {}
+  constructor(
+    private turnosService: TurnosService,
+    private jaulasService: JaulasService
+  ) {}
+
+  ngOnInit() {
+    this.cargarJaulas();
+  }
+
+  cargarJaulas() {
+    this.jaulasService.list().subscribe({
+      next: (jaulas: Jaula[]) => {
+        this.todasLasJaulas = jaulas;
+        this.jaulasDisponibles = jaulas.filter(j => j.enUso === 'N');
+      },
+      error: (error: any) => {
+        console.error('Error cargando jaulas:', error);
+        this.jaulasDisponibles = [];
+        this.todasLasJaulas = [];
+      }
+    });
+  }
 
   getEstado(): TurnoEstado {
     return this.turnosService.estado(this.turno);
@@ -159,18 +147,141 @@ export class RecepcionActionsComponent {
     const jaula = this.todasLasJaulas.find(j => j.idJaula === this.turno.cabecera.idJaula);
     return jaula?.nombre || `Jaula ${this.turno.cabecera.idJaula}`;
   }
-
-  iniciarRecepcion(): void {
-    if (!this.jaulaSeleccionada) return;
-    
-    const jaulaId = Number(this.jaulaSeleccionada);
-    this.turnosService.iniciarRecepcion(this.turno.cabecera.idTurno, jaulaId);
-    this.jaulaSeleccionada = '';
-    this.turnoActualizado.emit();
+  
+  // Obtener la hora actual en formato HH:mm
+  private getHoraActual(): string {
+    return nowHHmm();
   }
 
-  finalizarRecepcion(): void {
-    this.turnosService.finalizarRecepcion(this.turno.cabecera.idTurno);
-    this.turnoActualizado.emit();
+  abrirDialogoIniciar(): void {
+    const dialogRef = this.dialog.open(IniciarRecepcionDialog, {
+      width: '500px',
+      data: {
+        turno: this.turno,
+        jaulasDisponibles: this.jaulasDisponibles
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.confirmed) {
+        this.iniciarRecepcion(result.jaulaId);
+      }
+    });
+  }
+
+  abrirDialogoFinalizar(): void {
+    const dialogRef = this.dialog.open(FinalizarRecepcionDialog, {
+      width: '500px',
+      data: {
+        turno: this.turno,
+        nombreJaula: this.getNombreJaula()
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.finalizarRecepcion();
+      }
+    });
+  }
+
+  verDetalles(): void {
+    const dialogRef = this.dialog.open(DetallesRecepcionDialog, {
+  width: '800px',
+  maxWidth: '90vw',
+      data: {
+        turno: this.turno,
+        nombreJaula: this.getNombreJaula()
+      }
+    });
+  }
+
+  private iniciarRecepcion(jaulaId: number): void {
+    try {
+      // Marcar la jaula como en uso
+      this.jaulasService.setEnUso(jaulaId, 'S');
+      
+      // Actualizar el turno localmente para mostrar cambio instantáneo
+      this.turno.cabecera.idJaula = jaulaId;
+      const now = this.getHoraActual();
+      this.turno.cabecera.horaInicioRecepcion = now;
+      
+      // Llamar al servicio para persistir los cambios
+      this.turnosService.iniciarRecepcion(this.turno.cabecera.idTurno, jaulaId);
+      
+      // Emitir evento al padre
+      this.recepcionChanged.emit({
+        type: 'iniciada',
+        turno: this.turno,
+        success: true,
+        jaulaId: jaulaId,
+        timestamp: now
+      });
+      
+      this.snackBar.open('Recepción iniciada correctamente', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    } catch (error) {
+      // Emitir evento de error al padre
+      this.recepcionChanged.emit({
+        type: 'iniciada',
+        turno: this.turno,
+        success: false,
+        jaulaId: jaulaId,
+        timestamp: this.getHoraActual()
+      });
+      
+      this.snackBar.open('Error al iniciar recepción', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    }
+  }
+
+  private finalizarRecepcion(): void {
+    try {
+      // Liberar la jaula
+      if (this.turno.cabecera.idJaula) {
+        this.jaulasService.setEnUso(this.turno.cabecera.idJaula, 'N');
+      }
+      
+      // Actualizar el turno localmente para mostrar cambio instantáneo
+      const now = this.getHoraActual();
+      this.turno.cabecera.horaFinRecepcion = now;
+      
+      // Llamar al servicio para persistir los cambios
+      this.turnosService.finalizarRecepcion(this.turno.cabecera.idTurno);
+      
+      // Emitir evento al padre
+      this.recepcionChanged.emit({
+        type: 'finalizada',
+        turno: this.turno,
+        success: true,
+        timestamp: now
+      });
+      
+      this.snackBar.open('Recepción finalizada correctamente', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    } catch (error) {
+      // Emitir evento de error al padre
+      this.recepcionChanged.emit({
+        type: 'finalizada',
+        turno: this.turno,
+        success: false,
+        timestamp: this.getHoraActual()
+      });
+      
+      this.snackBar.open('Error al finalizar recepción', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    }
   }
 }
