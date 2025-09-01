@@ -3,6 +3,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Turno, TurnoCabecera, TurnoDetalle, TurnoEstado } from '../models/turno';
 import { IdService } from './id.service';
 import { JaulasService } from './jaulas.service';
+import { ProveedoresService } from './proveedores.service';
+import { ProductosService } from './productos.service';
 import { CookieStorageService } from './cookie-storage.service';
 import { nowHHmm } from '../utils/time';
 
@@ -12,7 +14,13 @@ export class TurnosService {
   private readonly _items$ = new BehaviorSubject<Turno[]>([]);
   readonly items$ = this._items$.asObservable();
 
-  constructor(private ids: IdService, private jaulas: JaulasService, private storage: CookieStorageService) {
+  constructor(
+    private ids: IdService, 
+    private jaulas: JaulasService, 
+    private proveedores: ProveedoresService,
+    private productos: ProductosService,
+    private storage: CookieStorageService
+  ) {
     this.loadFromStorage();
     const currentItems = this._items$.value;
     if (currentItems.length > 0) {
@@ -21,8 +29,61 @@ export class TurnosService {
   }
 
   private loadFromStorage(): void {
-    const items = this.storage.loadFromStorage<Turno>(this.STORAGE_KEY);
-    this._items$.next(items);
+    const items = this.storage.loadFromStorage<any>(this.STORAGE_KEY);
+    // Migrar datos antiguos al nuevo formato si es necesario
+    const migratedItems = items.map(item => this.migrateToNewFormat(item));
+    this._items$.next(migratedItems);
+  }
+
+  private migrateToNewFormat(turno: any): Turno {
+    // Si el turno ya tiene el nuevo formato, devolverlo tal como está
+    if (turno.cabecera.proveedor && typeof turno.cabecera.proveedor === 'object') {
+      return turno;
+    }
+
+    // Migrar formato antiguo al nuevo
+    const proveedor = this.proveedores.getById(turno.cabecera.idProveedor);
+    if (!proveedor) {
+      console.warn(`Proveedor con ID ${turno.cabecera.idProveedor} no encontrado durante la migración`);
+      return turno; // Devolver sin migrar si no se encuentra el proveedor
+    }
+
+    let jaula = null;
+    if (turno.cabecera.idJaula) {
+      jaula = this.jaulas.getById(turno.cabecera.idJaula);
+    }
+
+    const detallesMigrados = turno.detalles.map((detalle: any) => {
+      if (detalle.producto && typeof detalle.producto === 'object') {
+        return detalle; // Ya está migrado
+      }
+      
+      const producto = this.productos.getById(detalle.idProducto);
+      if (!producto) {
+        console.warn(`Producto con ID ${detalle.idProducto} no encontrado durante la migración`);
+        return detalle; // Devolver sin migrar si no se encuentra el producto
+      }
+      
+      return {
+        idTurno: detalle.idTurno,
+        producto,
+        cantidad: detalle.cantidad
+      };
+    });
+
+    return {
+      cabecera: {
+        idTurno: turno.cabecera.idTurno,
+        fecha: turno.cabecera.fecha,
+        horaInicioAgendamiento: turno.cabecera.horaInicioAgendamiento,
+        horaFinAgendamiento: turno.cabecera.horaFinAgendamiento,
+        proveedor,
+        jaula,
+        horaInicioRecepcion: turno.cabecera.horaInicioRecepcion,
+        horaFinRecepcion: turno.cabecera.horaFinRecepcion
+      },
+      detalles: detallesMigrados
+    };
   }
 
   private saveToStorage(): void {
@@ -45,18 +106,31 @@ export class TurnosService {
     idProveedor: number,
     detalles: { idProducto: number; cantidad: number }[]
   ): number {
+    const proveedor = this.proveedores.getById(idProveedor);
+    if (!proveedor) {
+      throw new Error(`Proveedor con ID ${idProveedor} no encontrado`);
+    }
+
     const idTurno = this.ids.next();
     const cabecera: TurnoCabecera = {
       idTurno,
       fecha,
       horaInicioAgendamiento,
       horaFinAgendamiento,
-      idProveedor,
-      idJaula: null,
+      proveedor,
+      jaula: null,
       horaInicioRecepcion: null,
       horaFinRecepcion: null,
     };
-    const dets: TurnoDetalle[] = detalles.map(d => ({ idTurno, ...d }));
+    
+    const dets: TurnoDetalle[] = detalles.map(d => {
+      const producto = this.productos.getById(d.idProducto);
+      if (!producto) {
+        throw new Error(`Producto con ID ${d.idProducto} no encontrado`);
+      }
+      return { idTurno, producto, cantidad: d.cantidad };
+    });
+    
     const nuevo: Turno = { cabecera, detalles: dets };
     this._items$.next([...this._items$.value, nuevo]);
     this.saveToStorage();
@@ -74,7 +148,9 @@ export class TurnosService {
   }
 
   byDateSnapshot(fecha: string): Turno[] {
-    return this._items$.value.filter(t => t.cabecera.fecha === fecha);
+    return this._items$.value
+      .filter(t => t.cabecera.fecha === fecha)
+      .sort((a, b) => a.cabecera.horaInicioAgendamiento.localeCompare(b.cabecera.horaInicioAgendamiento));
   }
 
   estado(t: Turno): TurnoEstado {
@@ -113,7 +189,7 @@ export class TurnosService {
     if (!jaula || jaula.enUso === 'S') return;
     console.log("aaqwkjrnkjqg")
 
-    const modCab = { ...t.cabecera, idJaula, horaInicioRecepcion: nowHHmm() };
+    const modCab = { ...t.cabecera, jaula, horaInicioRecepcion: nowHHmm() };
         console.log("aaqwrnqvvvv")
 
     const modTurno: Turno = { ...t, cabecera: modCab };
@@ -142,7 +218,7 @@ console.log("aadsq")
       return;
     }
 
-    const idJaula = t.cabecera.idJaula ?? undefined;
+    const idJaula = t.cabecera.jaula?.idJaula ?? undefined;
     const modCab = { ...t.cabecera, horaFinRecepcion: nowHHmm() };
     const modTurno: Turno = { ...t, cabecera: modCab };
 

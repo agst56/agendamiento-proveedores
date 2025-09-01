@@ -36,7 +36,7 @@ export interface IniciarRecepcionData {
         
         <div class="info-section">
           <div class="info-item">
-            <strong>Proveedor ID:</strong> {{ data.turno.cabecera?.idProveedor || 'N/A' }}
+            <strong>Proveedor:</strong> {{ data.turno.cabecera.proveedor.nombre || 'N/A' }}
           </div>
           <div class="info-item">
             <strong>Fecha:</strong> {{ data.turno.cabecera?.fecha || 'N/A' }}

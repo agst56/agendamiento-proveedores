@@ -18,6 +18,11 @@ import { TurnosService } from '../../../core/services/turnos.service';
       
       <div class="info-grid">
         <div class="info-item">
+          <label>Proveedor:</label>
+          <span>{{ turno.cabecera.proveedor.nombre }}</span>
+        </div>
+        
+        <div class="info-item">
           <label>Fecha:</label>
           <span>{{ turno.cabecera.fecha }}</span>
         </div>
@@ -27,9 +32,9 @@ import { TurnosService } from '../../../core/services/turnos.service';
           <span>{{ turno.cabecera.horaInicioAgendamiento }} - {{ turno.cabecera.horaFinAgendamiento }}</span>
         </div>
         
-        <div class="info-item" *ngIf="turno.cabecera.idJaula">
+        <div class="info-item" *ngIf="turno.cabecera.jaula">
           <label>Jaula asignada:</label>
-          <span>{{ turno.cabecera.idJaula }}</span>
+          <span>{{ turno.cabecera.jaula.nombre }}</span>
         </div>
         
         <div class="info-item" *ngIf="turno.cabecera.horaInicioRecepcion">
@@ -47,7 +52,7 @@ import { TurnosService } from '../../../core/services/turnos.service';
         <h5>Productos:</h5>
         <ul>
           <li *ngFor="let detalle of turno.detalles">
-            Producto {{ detalle.idProducto }}: {{ detalle.cantidad }} unidades
+            {{ detalle.producto.nombre }}: {{ detalle.cantidad }} unidades
           </li>
         </ul>
       </div>

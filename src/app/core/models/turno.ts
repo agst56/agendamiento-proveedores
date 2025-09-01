@@ -1,10 +1,14 @@
+import { Proveedor } from './proveedor';
+import { Jaula } from './jaula';
+import { Producto } from './producto';
+
 export interface TurnoCabecera {
 idTurno: number;
 fecha: string; // ISO (yyyy-mm-dd)
 horaInicioAgendamiento: string; // HH:mm
 horaFinAgendamiento: string; // HH:mm
-idProveedor: number;
-idJaula?: number | null; // asignada durante la recepción
+proveedor: Proveedor;
+jaula?: Jaula | null; // asignada durante la recepción
 horaInicioRecepcion?: string | null; // HH:mm
 horaFinRecepcion?: string | null; // HH:mm
 }
@@ -12,7 +16,7 @@ horaFinRecepcion?: string | null; // HH:mm
 
 export interface TurnoDetalle {
 idTurno: number;
-idProducto: number;
+producto: Producto;
 cantidad: number;
 }
 
