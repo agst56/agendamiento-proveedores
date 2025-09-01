@@ -25,6 +25,9 @@ export interface FinalizarRecepcionData {
         
         <div class="info-section">
           <div class="info-item">
+            <strong>Proveedor:</strong> {{ data.turno.cabecera?.proveedor?.nombre || 'N/A' }}
+          </div>
+          <div class="info-item">
             <strong>Jaula utilizada:</strong> {{ data.nombreJaula }}
           </div>
           <div class="info-item">

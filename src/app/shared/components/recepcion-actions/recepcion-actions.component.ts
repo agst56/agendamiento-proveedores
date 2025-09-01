@@ -143,9 +143,8 @@ export class RecepcionActionsComponent implements OnInit {
   }
 
   getNombreJaula(): string {
-    if (!this.turno.cabecera.idJaula) return 'N/A';
-    const jaula = this.todasLasJaulas.find(j => j.idJaula === this.turno.cabecera.idJaula);
-    return jaula?.nombre || `Jaula ${this.turno.cabecera.idJaula}`;
+    if (!this.turno.cabecera.jaula) return 'N/A';
+    return this.turno.cabecera.jaula.nombre;
   }
   
   // Obtener la hora actual en formato HH:mm
@@ -198,9 +197,15 @@ export class RecepcionActionsComponent implements OnInit {
 
   private iniciarRecepcion(jaulaId: number): void {
     try {
-            
+      // Obtener el objeto jaula completo
+      const jaula = this.jaulasService.getById(jaulaId);
+      if (!jaula) {
+        console.error(`Jaula con ID ${jaulaId} no encontrada`);
+        return;
+      }
+      
       // Actualizar el turno localmente para mostrar cambio instantáneo
-      this.turno.cabecera.idJaula = jaulaId;
+      this.turno.cabecera.jaula = jaula;
       const now = this.getHoraActual();
       
       // Llamar al servicio para persistir los cambios

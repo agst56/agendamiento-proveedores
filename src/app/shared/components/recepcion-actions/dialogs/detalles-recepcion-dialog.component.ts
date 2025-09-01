@@ -31,8 +31,8 @@ export interface DetallesRecepcionData {
           <mat-card-content>
             <div class="info-grid">
               <div class="info-item">
-                <span class="label">Proveedor ID:</span>
-                <span class="value">{{ data.turno.cabecera?.idProveedor || 'N/A' }}</span>
+                <span class="label">Proveedor:</span>
+                <span class="value">{{ data.turno.cabecera?.proveedor?.nombre || 'N/A' }}</span>
               </div>
               <div class="info-item">
                 <span class="label">Fecha:</span>
@@ -76,7 +76,7 @@ export interface DetallesRecepcionData {
             <div class="productos-list">
               <div *ngFor="let detalle of data.turno.detalles" class="producto-item">
                 <mat-icon>inventory</mat-icon>
-                <span class="producto-nombre">Producto ID {{ detalle.idProducto }}</span>
+                <span class="producto-nombre">{{ detalle.producto.nombre }}</span>
                 <span class="producto-cantidad">{{ detalle.cantidad || 0 }} unidades</span>
               </div>
             </div>

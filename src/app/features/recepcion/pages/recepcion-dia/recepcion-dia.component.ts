@@ -45,11 +45,6 @@ export class RecepcionDiaComponent {
     this.turnos = this.turnosSrv.byDateSnapshot(this.fecha); 
   }
 
-  nombreProveedor(id: number): string {
-    const p = this.proveedores.getById(id);
-    return p?.nombre || '';
-  }
-
   nombreProducto(id: number): string {
     const p = this.productos.getById(id);
     return p?.nombre || `Producto ${id}`;

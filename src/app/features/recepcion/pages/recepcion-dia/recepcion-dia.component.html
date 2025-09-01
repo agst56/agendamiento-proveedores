@@ -20,8 +20,8 @@
   <tbody>
     <tr *ngFor="let t of turnos">
       <td>{{ t.cabecera.horaInicioAgendamiento }} - {{ t.cabecera.horaFinAgendamiento }}</td>
-      <td>{{ nombreProveedor(t.cabecera.idProveedor) }}</td>
-      <td>{{ t.cabecera.idJaula || '-' }}</td>
+      <td>{{ t.cabecera.proveedor.nombre }}</td>
+      <td>{{ t.cabecera.jaula?.nombre || '-' }}</td>
       <td>{{ estado(t) }}</td>
       <td>{{ formatHoraDesdeISO(t.cabecera.horaInicioRecepcion) }}</td>
       <td>{{ formatHoraDesdeISO(t.cabecera.horaFinRecepcion) }}</td>
