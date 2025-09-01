@@ -1,0 +1,11 @@
+<h2>{{ id ? 'Editar producto' : 'Nuevo producto' }}</h2>
+
+<form [formGroup]="form">
+  <label>Nombre</label>
+  <input formControlName="nombre" />
+  
+  <div class="actions">
+    <button type="button" (click)="save()" [disabled]="form.invalid">Guardar</button>
+    <a routerLink="/productos">Cancelar</a>
+  </div>
+</form>

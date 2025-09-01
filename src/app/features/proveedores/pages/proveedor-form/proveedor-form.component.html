@@ -1,0 +1,11 @@
+<h2>{{ id ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+
+<form [formGroup]="form">
+  <label>Nombre</label>
+  <input formControlName="nombre" />
+  
+  <div class="actions">
+    <button type="button" (click)="save()" [disabled]="form.invalid">Guardar</button>
+    <a routerLink="/proveedores">Cancelar</a>
+  </div>
+</form>

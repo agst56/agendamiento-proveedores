@@ -1,0 +1,47 @@
+<h2>Nueva reserva</h2>
+<form [formGroup]="form" class="form">
+  <div class="row">
+    <label>Fecha</label>
+    <input type="date" formControlName="fecha" />
+  </div>
+  
+  <div class="row">
+    <label>Hora inicio</label>
+    <select formControlName="horaInicioAgendamiento">
+      <option value="">--</option>
+      <option *ngFor="let t of timeSlots" [value]="t">{{ t }}</option>
+    </select>
+    
+    <label>Hora fin</label>
+    <select formControlName="horaFinAgendamiento">
+      <option value="">--</option>
+      <option *ngFor="let t of timeSlots" [value]="t">{{ t }}</option>
+    </select>
+  </div>
+  
+  <div class="row">
+    <label>Proveedor</label>
+    <select formControlName="idProveedor">
+      <option [value]="0">--</option>
+      <option *ngFor="let p of (proveedores$ | async)" [value]="p.idProveedor">{{ p.nombre }}</option>
+    </select>
+  </div>
+  
+  <h3>Productos</h3>
+  <div formArrayName="detalles">
+    <div class="detalle" *ngFor="let d of detallesFA.controls; let i = index" [formGroupName]="i">
+      <select formControlName="idProducto">
+        <option [value]="0">--</option>
+        <option *ngFor="let pr of (productos$ | async)" [value]="pr.idProducto">{{ pr.nombre }}</option>
+      </select>
+      <input type="number" min="1" formControlName="cantidad" />
+      <button type="button" (click)="removeDetalle(i)" *ngIf="detallesFA.length > 1">Quitar</button>
+    </div>
+  </div>
+  
+  <button type="button" (click)="addDetalle()">+ Agregar producto</button>
+  
+  <div class="actions">
+    <button type="button" (click)="save()" [disabled]="form.invalid">Guardar</button>
+  </div>
+</form>

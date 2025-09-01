@@ -1,0 +1,4 @@
+.main-content {
+  padding-top: 70px; /* Espacio para el header fijo */
+  min-height: calc(100vh - 70px);
+}

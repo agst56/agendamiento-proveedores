@@ -1,0 +1,37 @@
+<div class="header">
+  <h2>Jaulas</h2>
+  <a routerLink="/jaulas/nuevo">+ Nuevo</a>
+</div>
+
+<app-search-input 
+  placeholder="Filtrar por nombre" 
+  [value]="term"
+  (valueChange)="onSearch($event)">
+</app-search-input>
+
+<table class="tbl">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Estado</th>
+      <th style="width:120px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let j of (items$ | async) | slice:0; trackBy: trackById"
+        [hidden]="term && !j.nombre.toLowerCase().includes(term.toLowerCase())">
+      <td>{{ j.idJaula }}</td>
+      <td>{{ j.nombre }}</td>
+      <td>
+        <span [class]="j.enUso === 'S' ? 'estado-ocupada' : 'estado-libre'">
+          {{ j.enUso === 'S' ? 'Ocupada' : 'Libre' }}
+        </span>
+      </td>
+      <td>
+        <a [routerLink]="['/jaulas', j.idJaula]">Editar</a>
+        <button (click)="remove(j.idJaula)">Eliminar</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

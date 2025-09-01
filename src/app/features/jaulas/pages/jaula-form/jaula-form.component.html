@@ -1,0 +1,17 @@
+<h2>{{ id ? 'Editar jaula' : 'Nueva jaula' }}</h2>
+
+<form [formGroup]="form">
+  <label>Nombre</label>
+  <input formControlName="nombre" />
+  
+  <label>Estado</label>
+  <select formControlName="enUso">
+    <option value="N">Libre</option>
+    <option value="S">Ocupada</option>
+  </select>
+  
+  <div class="actions">
+    <button type="button" (click)="save()" [disabled]="form.invalid">Guardar</button>
+    <a routerLink="/jaulas">Cancelar</a>
+  </div>
+</form>

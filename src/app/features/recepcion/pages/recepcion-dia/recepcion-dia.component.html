@@ -1,0 +1,57 @@
+<h2>Recepción por día</h2>
+
+<div class="row">
+  <label>Fecha</label>
+  <input type="date" [(ngModel)]="fecha" (ngModelChange)="refrescar()" />
+</div>
+
+<table class="tbl">
+  <thead>
+    <tr>
+      <th>Hora</th>
+      <th>Proveedor</th>
+      <th>Jaula</th>
+      <th>Estado</th>
+      <th style="width:260px">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let t of turnos">
+      <td>{{ t.cabecera.horaInicioAgendamiento }} - {{ t.cabecera.horaFinAgendamiento }}</td>
+      <td>{{ nombreProveedor(t.cabecera.idProveedor) }}</td>
+      <td>{{ t.cabecera.idJaula || '-' }}</td>
+      <td>{{ estado(t) }}</td>
+      <td>
+        <button (click)="toggle(t.cabecera.idTurno)">Detalles</button>
+        <ng-container [ngSwitch]="estado(t)">
+          <div *ngSwitchCase="'PENDIENTE'" class="inline">
+            <select [(ngModel)]="jaulaSeleccionada[t.cabecera.idTurno]">
+              <option *ngFor="let j of (jaulas$ | async)" [value]="j.idJaula" [disabled]="j.enUso === 'S'">
+                {{ j.nombre }} ({{ j.enUso==='S'?'Ocupada':'Libre' }})
+              </option>
+            </select>
+            <button (click)="iniciar(t)">Iniciar recepción</button>
+          </div>
+          <button *ngSwitchCase="'EN_RECEPCION'" (click)="finalizar(t)">Finalizar</button>
+          <span *ngSwitchCase="'FINALIZADO'">—</span>
+        </ng-container>
+      </td>
+    </tr>
+    <tr *ngFor="let t of turnos">
+      <td colspan="5" *ngIf="expanded[t.cabecera.idTurno]">
+        <strong>Productos:</strong>
+        <ul>
+          <li *ngFor="let d of t.detalles">
+            {{ nombreProducto(d.idProducto) }}: {{ d.cantidad }}
+          </li>
+        </ul>
+        <div *ngIf="t.cabecera.horaInicioRecepcion">
+          Inicio recepción: {{ t.cabecera.horaInicioRecepcion }}
+        </div>
+        <div *ngIf="t.cabecera.horaFinRecepcion">
+          Fin recepción: {{ t.cabecera.horaFinRecepcion }}
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
