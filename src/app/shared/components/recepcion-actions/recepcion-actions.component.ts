@@ -242,13 +242,13 @@ export class RecepcionActionsComponent implements OnInit {
   private finalizarRecepcion(): void {
     try {
       
-      // Actualizar el turno localmente para mostrar cambio instantáneo
       const now = this.getHoraActual();
-      this.turno.cabecera.horaFinRecepcion = now;
       
       // Llamar al servicio para persistir los cambios
       this.turnosService.finalizarRecepcion(this.turno.cabecera.idTurno);
       
+      this.turno.cabecera.horaFinRecepcion = now;
+
       // Emitir evento al padre
       this.recepcionChanged.emit({
         type: 'finalizada',

@@ -135,7 +135,6 @@ console.log("aadsq")
     const idx = items.findIndex(t => t.cabecera.idTurno === idTurno);
     if (idx < 0) return;
     const t = items[idx];
-    if (!t.cabecera.horaInicioRecepcion || t.cabecera.horaFinRecepcion) return;
 
     // Validar que el turno esté en estado 'en recepcion'
     if (!this.puedeFinalizarRecepcion(t)) {
